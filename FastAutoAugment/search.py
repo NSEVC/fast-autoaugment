@@ -57,7 +57,7 @@ def _get_path(dataset, model, tag):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'models/%s_%s_%s.model' % (dataset, model, tag))     # TODO
 
 
-@ray.remote(num_gpus=4, max_calls=1)
+@ray.remote(num_gpus=1, max_calls=1)
 def train_model(config, dataroot, augment, cv_ratio_test, cv_fold, save_path=None, skip_exist=False):
     C.get()
     C.get().conf = config
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     logger.info('configuration...')
     logger.info(json.dumps(C.get().conf, sort_keys=True, indent=4))
     logger.info('initialize ray...')
-    ray.init(redis_address=args.redis)
+    ray.init()
 
     num_result_per_cv = 10
     cv_num = 5
