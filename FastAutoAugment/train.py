@@ -119,7 +119,8 @@ def train_and_eval(tag, dataroot, test_ratio=0.0, cv_fold=0, reporter=None, metr
 
     is_master = local_rank < 0 or dist.get_rank() == 0
     if is_master:
-        add_filehandler(logger, args.save + '.log')
+        # add_filehandler(logger, args.save + '.log')
+        add_filehandler(logger, 'test.pth.log')
 
     if not reporter:
         reporter = lambda **kwargs: 0
