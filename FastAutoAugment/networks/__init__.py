@@ -100,4 +100,5 @@ def num_class(dataset):
         'reduced_svhn': 10,
         'imagenet': 1000,
         'reduced_imagenet': 120,
+        'car': 7000,
     }[dataset]
