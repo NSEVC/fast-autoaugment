@@ -234,9 +234,9 @@ class EfficientNet(nn.Module):
         return cls(blocks_args, global_params, norm_layer=norm_layer)
 
     @classmethod
-    def from_pretrained(cls, model_name, num_classes=1000):
+    def from_pretrained(cls, model_name, num_classes=7000):
         model = cls.from_name(model_name, override_params={'num_classes': num_classes})
-        load_pretrained_weights(model, model_name, load_fc=(num_classes == 1000))
+        load_pretrained_weights(model, model_name, load_fc=(num_classes == 7000))
 
         return model
 
