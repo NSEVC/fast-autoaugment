@@ -22,7 +22,7 @@ class Car(torchvision.datasets.ImageFolder):
         if split == 'train' and os.path.exists(listfile):
             torchvision.datasets.VisionDataset.__init__(self, root, **kwargs)
             with open(listfile, 'r') as f:
-                datalist = [line.strip().split(' ')[0] for line in f.readlines() if line.strip()]
+                datalist = [" ".join(line.strip().split(' ')[:-1]) for line in f.readlines() if line.strip()]
 
             classes = list(set([line.split('/')[0] for line in datalist]))
             classes.sort()
