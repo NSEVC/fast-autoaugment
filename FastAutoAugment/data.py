@@ -19,6 +19,7 @@ from FastAutoAugment.archive import arsaug_policy, autoaug_policy, autoaug_paper
 from FastAutoAugment.augmentations import *
 from FastAutoAugment.common import get_logger
 from FastAutoAugment.imagenet import ImageNet
+from FastAutoAugment.car import Car
 from FastAutoAugment.networks.efficientnet_pytorch.model import EfficientNet
 
 logger = get_logger('Fast AutoAugment')
@@ -74,6 +75,36 @@ def get_dataloaders(dataset, batch, dataroot, split=0.15, split_idx=0, multinode
 
         transform_test = transforms.Compose([
             EfficientNetCenterCrop(input_size),
+            transforms.Resize((input_size, input_size), interpolation=Image.BICUBIC),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+    elif "car" in dataset:     # add data car
+        input_size = 224
+        sized_size = 256
+
+        if 'efficientnet' in C.get()['model']['type']:
+            input_size = EfficientNet.get_image_size(C.get()['model']['type'])   # 224
+            sized_size = input_size + 32    # TODO
+            # sized_size = int(round(input_size / 224. * 256))
+            # sized_size = input_size
+            logger.info('size changed to %d/%d.' % (input_size, sized_size))
+
+        transform_train = transforms.Compose([
+            transforms.Resize((input_size, input_size), interpolation=Image.BICUBIC),
+            transforms.RandomHorizontalFlip(),
+            transforms.ColorJitter(
+                brightness=0.2,
+                contrast=0.2,
+                saturation=0.2,
+            ),
+            transforms.ToTensor(),
+            Lighting(0.1, _IMAGENET_PCA['eigval'], _IMAGENET_PCA['eigvec']),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+        transform_test = transforms.Compose([
             transforms.Resize((input_size, input_size), interpolation=Image.BICUBIC),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -181,6 +212,9 @@ def get_dataloaders(dataset, batch, dataroot, split=0.15, split_idx=0, multinode
             testset.samples[idx] = (testset.samples[idx][0], idx120.index(testset.samples[idx][1]))
         testset = Subset(testset, test_idx)
         print('reduced_imagenet train=', len(total_trainset))
+    elif dataset == 'car':
+        total_trainset = Car(root=dataroot, transform=transform_train)
+        testset = Car(root=dataroot, split="val", transform=transform_test)
     else:
         raise ValueError('invalid dataset name=%s' % dataset)
 
