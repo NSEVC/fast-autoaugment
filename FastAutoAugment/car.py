@@ -8,6 +8,7 @@ from __future__ import print_function
 import os
 import shutil
 import torch
+from PIL import Image
 
 import torchvision
 from torchvision.datasets.utils import check_integrity, download_url
@@ -33,7 +34,8 @@ class Car(torchvision.datasets.ImageFolder):
                 for line in datalist
             ]
 
-            self.loader = torchvision.datasets.folder.default_loader
+            # self.loader = torchvision.datasets.folder.default_loader
+            self.loader = self.loader
             self.extensions = torchvision.datasets.folder.IMG_EXTENSIONS
 
             self.classes = classes
@@ -43,7 +45,7 @@ class Car(torchvision.datasets.ImageFolder):
 
             self.imgs = self.samples
         else:
-            super(Car, self).__init__(self.split_folder, **kwargs)
+            super(Car, self).__init__(self.split_folder, loader=self.loader, **kwargs)
 
         self.root = root
 
@@ -58,6 +60,29 @@ class Car(torchvision.datasets.ImageFolder):
             msg += "Valid splits are {{}}.".format(", ".join(self.valid_splits))
             raise ValueError(msg)
         return split
+
+    def pad_image(self, image, target_size):
+        iw, ih = image.size  # 原始图像的尺寸
+        w, h = target_size  # 目标图像的尺寸
+        scale = min(w / iw, h / ih)  # 转换的最小比例
+
+        # 保证长或宽，至少一个符合目标图像的尺寸
+        nw = int(iw * scale)
+        nh = int(ih * scale)
+
+        image = image.resize((nw, nh), Image.BICUBIC)  # 缩小图像
+        image.show()
+        new_image = Image.new('RGB', target_size, (128, 128, 128))  # 生成灰色图像
+        # // 为整数除法，计算图像的位置
+        new_image.paste(image, ((w - nw) // 2, (h - nh) // 2))  # 将图像填充为中间图像，两侧为灰色的样式
+
+        return new_image
+
+    def loader(self, path):
+        image_size = 380
+        with open(path, 'rb') as f:
+            img = Image.open(f).convert('RGB')
+            return self.pad_image(img, (image_size, image_size))
 
     @property
     def valid_splits(self):

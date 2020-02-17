@@ -12,7 +12,7 @@ import ray
 import gorilla
 from ray.tune.trial import Trial
 from ray.tune.trial_runner import TrialRunner
-from ray.tune.suggest import HyperOptSearch
+from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune import register_trainable, run_experiments
 from tqdm import tqdm
 
