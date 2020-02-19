@@ -92,7 +92,7 @@ def get_dataloaders(dataset, batch, dataroot, split=0.15, split_idx=0, multinode
             logger.info('size changed to %d/%d.' % (input_size, sized_size))
 
         transform_train = transforms.Compose([
-            transforms.Resize((input_size, input_size), interpolation=Image.BICUBIC),
+            # transforms.Resize((input_size, input_size), interpolation=Image.BICUBIC),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(
                 brightness=0.2,
@@ -105,7 +105,7 @@ def get_dataloaders(dataset, batch, dataroot, split=0.15, split_idx=0, multinode
         ])
 
         transform_test = transforms.Compose([
-            transforms.Resize((input_size, input_size), interpolation=Image.BICUBIC),
+            # transforms.Resize((input_size, input_size), interpolation=Image.BICUBIC),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
@@ -115,10 +115,10 @@ def get_dataloaders(dataset, batch, dataroot, split=0.15, split_idx=0, multinode
 
     total_aug = augs = None
     if isinstance(C.get()['aug'], list):
-        logger.debug('augmentation provided.')
+        logger.info('augmentation provided.')
         transform_train.transforms.insert(0, Augmentation(C.get()['aug']))
     else:
-        logger.debug('augmentation: %s' % C.get()['aug'])
+        logger.info('XXXX augmentation: %s' % C.get()['aug'])
         if C.get()['aug'] == 'fa_reduced_cifar10':
             transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar10()))
 
